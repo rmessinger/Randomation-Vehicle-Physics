@@ -445,7 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 2011189575}
   spawnPoint: {x: 0, y: 5, z: 4}
-  spawnRot: {x: -1, y: 0, z: 0}
+  spawnRot: {x: 1, y: 0, z: 0}
   vehicles:
   - {fileID: 127608, guid: daff435ee1ce92042a115215eb58427c, type: 3}
   - {fileID: 129870, guid: f77f093a046ab3b41b7dba5c30ee928c, type: 3}
