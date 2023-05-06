@@ -31,7 +31,8 @@ namespace RVP
 
         // Spawns a vehicle from the vehicles array at the index
         public void SpawnVehicle(int vehicle) {
-            newVehicle = Instantiate(vehicles[vehicle], spawnPoint, Quaternion.LookRotation(spawnRot, GlobalControl.worldUpDir)) as GameObject;
+            newVehicle = vehicles[18]; // Instantiate(vehicles[18], spawnPoint, Quaternion.LookRotation(spawnRot, GlobalControl.worldUpDir)) as GameObject;
+            // newVehicle.transform.position = spawnPoint;
             cam.target = newVehicle.transform;
             cam.Initialize();
 
