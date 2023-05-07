@@ -10,10 +10,9 @@ namespace RVP
     // Class for following AI
     public class FollowAI : MonoBehaviour
     {
-        Transform tr;
-        Rigidbody rb;
-        VehicleParent vp;
-        VehicleAssist va;
+        Rigidbody rigidBody;
+        VehicleParent vehicleParent;
+        VehicleAssist assist;
         public Transform target;
         Transform targetPrev;
         Rigidbody targetBody;
@@ -23,7 +22,7 @@ namespace RVP
         VehicleWaypoint targetWaypoint;
 
         public float followDistance;
-        bool close;
+        // bool close;
 
         [Tooltip("Percentage of maximum speed to drive at")]
         [Range(0, 1)]
@@ -36,9 +35,9 @@ namespace RVP
 
         [Tooltip("Mask for which objects can block the view of the target")]
         public LayerMask viewBlockMask;
-        Vector3 dirToTarget; // Normalized direction to target
-        float lookDot; // Dot product of forward direction and dirToTarget
-        float steerDot; // Dot product of right direction and dirToTarget
+        // Vector3 dirToTarget; // Normalized direction to target
+        // float lookDot; // Dot product of forward direction and dirToTarget
+        // float steerDot; // Dot product of right direction and dirToTarget
 
         float stoppedTime;
         float reverseTime;
@@ -58,10 +57,9 @@ namespace RVP
         float rolledOverTime;
 
         void Start() {
-            tr = transform;
-            rb = GetComponent<Rigidbody>();
-            vp = GetComponent<VehicleParent>();
-            va = GetComponent<VehicleAssist>();
+            rigidBody = GetComponent<Rigidbody>();
+            vehicleParent = GetComponent<VehicleParent>();
+            assist = GetComponent<VehicleAssist>();
             initialSpeed = speed;
 
             InitializeTarget();
@@ -78,7 +76,7 @@ namespace RVP
                 // Is the target a waypoint?
                 targetIsWaypoint = target.GetComponent<VehicleWaypoint>();
                 // Can I see the target?
-                targetVisible = !Physics.Linecast(tr.position, target.position, viewBlockMask);
+                targetVisible = !Physics.Linecast(transform.position, target.position, viewBlockMask);
 
                 if (targetVisible || targetIsWaypoint) {
                     targetPoint = targetBody ? target.position + targetBody.velocity : target.position;
@@ -86,7 +84,7 @@ namespace RVP
 
                 if (targetIsWaypoint) {
                     // if vehicle is close enough to target waypoint, switch to the next one
-                    if ((tr.position - target.position).sqrMagnitude <= targetWaypoint.radius * targetWaypoint.radius) {
+                    if ((transform.position - target.position).sqrMagnitude <= targetWaypoint.radius * targetWaypoint.radius) {
                         target = targetWaypoint.nextPoint.transform;
                         targetWaypoint = targetWaypoint.nextPoint;
                         prevSpeed = speed;
@@ -101,13 +99,13 @@ namespace RVP
 
                 brakeTime = Mathf.Max(0, brakeTime - Time.fixedDeltaTime);
                 // Is the distance to the target less than the follow distance?
-                close = (tr.position - target.position).sqrMagnitude <= Mathf.Pow(followDistance, 2) && !targetIsWaypoint;
-                dirToTarget = (targetPoint - tr.position).normalized;
-                lookDot = Vector3.Dot(vp.forwardDir, dirToTarget);
-                steerDot = Vector3.Dot(vp.rightDir, dirToTarget);
+                bool close = (transform.position - target.position).sqrMagnitude <= Mathf.Pow(followDistance, 2) && !targetIsWaypoint;
+                Vector3 dirToTarget = (targetPoint - transform.position).normalized;
+                float lookDot = Vector3.Dot(vehicleParent.forwardDir, dirToTarget);
+                float steerDot = Vector3.Dot(vehicleParent.rightDir, dirToTarget);
 
                 // Attempt to reverse if vehicle is stuck
-                stoppedTime = Mathf.Abs(vp.localVelocity.z) < 1 && !close && vp.groundedWheels > 0 ? stoppedTime + Time.fixedDeltaTime : 0;
+                stoppedTime = Mathf.Abs(vehicleParent.localVelocity.z) < 1 && !close && vehicleParent.groundedWheels > 0 ? stoppedTime + Time.fixedDeltaTime : 0;
 
                 if (stoppedTime > stopTimeReverse && reverseTime == 0) {
                     reverseTime = reverseAttemptTime;
@@ -122,61 +120,61 @@ namespace RVP
                 reverseTime = Mathf.Max(0, reverseTime - Time.fixedDeltaTime);
 
                 if (targetVelocity > 0) {
-                    speedLimit = Mathf.Clamp01(targetVelocity - vp.localVelocity.z);
+                    speedLimit = Mathf.Clamp01(targetVelocity - vehicleParent.localVelocity.z);
                 }
                 else {
                     speedLimit = 1;
                 }
 
                 // Set accel input
-                if (!close && (lookDot > 0 || vp.localVelocity.z < 5) && vp.groundedWheels > 0 && reverseTime == 0) {
-                    vp.SetAccel(speed * speedLimit);
+                if (!close && (lookDot > 0 || vehicleParent.localVelocity.z < 5) && vehicleParent.groundedWheels > 0 && reverseTime == 0) {
+                    vehicleParent.SetAccel(speed * speedLimit);
                 }
                 else {
-                    vp.SetAccel(0);
+                    vehicleParent.SetAccel(0);
                 }
 
                 // Set brake input
-                if (reverseTime == 0 && brakeTime == 0 && !(close && vp.localVelocity.z > 0.1f)) {
-                    if (lookDot < 0.5f && lookDot > 0 && vp.localVelocity.z > 10) {
-                        vp.SetBrake(0.5f - lookDot);
+                if (reverseTime == 0 && brakeTime == 0 && !(close && vehicleParent.localVelocity.z > 0.1f)) {
+                    if (lookDot < 0.5f && lookDot > 0 && vehicleParent.localVelocity.z > 10) {
+                        vehicleParent.SetBrake(0.5f - lookDot);
                     }
                     else {
-                        vp.SetBrake(0);
+                        vehicleParent.SetBrake(0);
                     }
                 }
                 else {
                     if (reverseTime > 0) {
-                        vp.SetBrake(1);
+                        vehicleParent.SetBrake(1);
                     }
                     else {
                         if (brakeTime > 0) {
-                            vp.SetBrake(brakeTime * 0.2f);
+                            vehicleParent.SetBrake(brakeTime * 0.2f);
                         }
                         else {
-                            vp.SetBrake(1 - Mathf.Clamp01(Vector3.Distance(tr.position, target.position) / Mathf.Max(0.01f, followDistance)));
+                            vehicleParent.SetBrake(1 - Mathf.Clamp01(Vector3.Distance(transform.position, target.position) / Mathf.Max(0.01f, followDistance)));
                         }
                     }
                 }
 
                 // Set steer input
                 if (reverseTime == 0) {
-                    vp.SetSteer(Mathf.Abs(Mathf.Pow(steerDot, (tr.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot));
+                    vehicleParent.SetSteer(Mathf.Abs(Mathf.Pow(steerDot, (transform.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot));
                 }
                 else {
-                    vp.SetSteer(-Mathf.Sign(steerDot) * (close ? 0 : 1));
+                    vehicleParent.SetSteer(-Mathf.Sign(steerDot) * (close ? 0 : 1));
                 }
 
                 // Set ebrake input
-                if ((close && vp.localVelocity.z <= 0.1f) || (lookDot <= 0 && vp.velMag > 20)) {
-                    vp.SetEbrake(1);
+                if ((close && vehicleParent.localVelocity.z <= 0.1f) || (lookDot <= 0 && vehicleParent.velMag > 20)) {
+                    vehicleParent.SetEbrake(1);
                 }
                 else {
-                    vp.SetEbrake(0);
+                    vehicleParent.SetEbrake(0);
                 }
             }
 
-            rolledOverTime = va.rolledOver ? rolledOverTime + Time.fixedDeltaTime : 0;
+            rolledOverTime = assist.rolledOver ? rolledOverTime + Time.fixedDeltaTime : 0;
 
             // Reset if stuck rolled over
             if (rolledOverTime > rollResetTime && rollResetTime >= 0) {
@@ -188,18 +186,18 @@ namespace RVP
             reverseAttempts = 0;
             reverseTime = 0;
             yield return new WaitForFixedUpdate();
-            tr.position = targetPoint;
-            tr.rotation = Quaternion.LookRotation(targetIsWaypoint ? (targetWaypoint.nextPoint.transform.position - targetPoint).normalized : Vector3.forward, GlobalControl.worldUpDir);
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            transform.position = targetPoint;
+            transform.rotation = Quaternion.LookRotation(targetIsWaypoint ? (targetWaypoint.nextPoint.transform.position - targetPoint).normalized : Vector3.forward, GlobalControl.worldUpDir);
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
         }
 
         IEnumerator ResetRotation() {
             yield return new WaitForFixedUpdate();
-            tr.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
-            tr.Translate(Vector3.up, Space.World);
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+            transform.Translate(Vector3.up, Space.World);
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
         }
 
         public void InitializeTarget() {
