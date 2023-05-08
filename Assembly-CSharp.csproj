@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{69141B31-1A3F-B53B-59E2-58B63B4C3C2F}</ProjectGuid>
+    <ProjectGuid>{9418653C-18F5-0CBE-9AEE-A07ABAB567D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -742,7 +742,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Unity.VisualStudio.Editor.csproj">
-      <Project>{D573F326-8B31-B7FA-8D19-1346E2ACB342}</Project>
+      <Project>{890B9212-548B-ED53-AF92-1CD052E28601}</Project>
       <Name>Unity.VisualStudio.Editor</Name>
     </ProjectReference>
   </ItemGroup>

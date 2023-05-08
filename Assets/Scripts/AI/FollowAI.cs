@@ -117,6 +117,16 @@ namespace RVP
                     StartCoroutine(ReverseReset());
                 }
 
+                // Set steer input
+                if (reverseTime == 0)
+                {
+                    vehicleParent.SetSteer(Mathf.Abs(Mathf.Pow(steerDot, (transform.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot));
+                }
+                else
+                {
+                    vehicleParent.SetSteer(-Mathf.Sign(steerDot) * (close ? 0 : 1));
+                }
+
                 reverseTime = Mathf.Max(0, reverseTime - Time.fixedDeltaTime);
 
                 if (targetVelocity > 0) {
@@ -155,14 +165,6 @@ namespace RVP
                             vehicleParent.SetBrake(1 - Mathf.Clamp01(Vector3.Distance(transform.position, target.position) / Mathf.Max(0.01f, followDistance)));
                         }
                     }
-                }
-
-                // Set steer input
-                if (reverseTime == 0) {
-                    vehicleParent.SetSteer(Mathf.Abs(Mathf.Pow(steerDot, (transform.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot));
-                }
-                else {
-                    vehicleParent.SetSteer(-Mathf.Sign(steerDot) * (close ? 0 : 1));
                 }
 
                 // Set ebrake input
