@@ -90,6 +90,7 @@ namespace RVP
                 {
                     // if vehicle is close enough to target waypoint, switch to the next one
                     // try switching target to a midpoint of the arc of the next n waypoints if that arc distance is within some range
+                    // target should be variable, a function of the speed of the vehicle vs turning ability
                     if ((transform.position - target.position).sqrMagnitude <= targetWaypoint.radius * targetWaypoint.radius) 
                     {
                         target = targetWaypoint.nextPoint.transform;
@@ -126,16 +127,18 @@ namespace RVP
                     StartCoroutine(ReverseReset());
                 }
 
+                float steerAngle;
                 // Set steer input
                 if (reverseTime == 0)
                 {
-                    vehicleParent.SetSteer(Mathf.Abs(Mathf.Pow(steerDot, (transform.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot));
+                    steerAngle = Mathf.Abs(Mathf.Pow(steerDot, (transform.position - target.position).sqrMagnitude > 20 ? 1 : 2)) * Mathf.Sign(steerDot);
                 }
                 else
                 {
-                    vehicleParent.SetSteer(-Mathf.Sign(steerDot) * (close ? 0 : 1));
+                    steerAngle = -Mathf.Sign(steerDot) * (close ? 0 : 1);
                 }
 
+                vehicleParent.SetSteer(steerAngle);
                 reverseTime = Mathf.Max(0, reverseTime - Time.fixedDeltaTime);
 
                 if (targetVelocity > 0) 
@@ -145,6 +148,9 @@ namespace RVP
                 else {
                     speedLimit = 1;
                 }
+
+                // lower speed based on steering angle
+                speed *= (1 - Mathf.Abs(steerAngle));
 
                 // Set accel input
                 if (!close && (lookDot > 0 || vehicleParent.localVelocity.z < 5) && vehicleParent.groundedWheels > 0 && reverseTime == 0) 
