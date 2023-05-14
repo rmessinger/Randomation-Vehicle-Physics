@@ -145,12 +145,16 @@ namespace RVP
                 {
                     speedLimit = Mathf.Clamp01(targetVelocity - vehicleParent.localVelocity.z);
                 }
-                else {
+                else 
+                {
                     speedLimit = 1;
                 }
 
-                // lower speed based on steering angle
-                speed *= (1 - Mathf.Abs(steerAngle));
+                if (reverseTime == 0)
+                {
+                    // lower speed based on steering angle
+                    speedLimit *= (1 - Mathf.Abs(steerAngle));
+                }
 
                 // Set accel input
                 if (!close && (lookDot > 0 || vehicleParent.localVelocity.z < 5) && vehicleParent.groundedWheels > 0 && reverseTime == 0) 

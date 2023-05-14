@@ -18,6 +18,8 @@ namespace RVP
         public Text propertySetterText;
         public Text stuntText;
         public Text scoreText;
+        public Text diagText;
+
         VehicleParent vp;
         Motor engine;
         Transmission trans;
@@ -91,6 +93,7 @@ namespace RVP
                 }
 
                 propertySetterText.text = "Steering angle: " + vp.steerInput.ToString("0.000");
+                diagText.text = "Diag: " + vp.accelInput;
             }
         }
     }
