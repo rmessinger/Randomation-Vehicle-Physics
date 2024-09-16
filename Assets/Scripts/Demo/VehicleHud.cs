@@ -18,6 +18,8 @@ namespace RVP
         public Text propertySetterText;
         public Text stuntText;
         public Text scoreText;
+        public Text diagText;
+
         VehicleParent vp;
         Motor engine;
         Transmission trans;
@@ -26,7 +28,6 @@ namespace RVP
         StuntDetect stunter;
         public bool stuntMode;
         float stuntEndTime = -1;
-        PropertyToggleSetter propertySetter;
 
         private void Start() {
             Initialize(targetVehicle);
@@ -52,7 +53,6 @@ namespace RVP
             }
 
             engine = targetVehicle.GetComponentInChildren<Motor>();
-            propertySetter = targetVehicle.GetComponent<PropertyToggleSetter>();
 
             stuntText.gameObject.SetActive(stuntMode);
             scoreText.gameObject.SetActive(stuntMode);
@@ -92,9 +92,8 @@ namespace RVP
                     scoreText.text = "Score: " + stunter.score.ToString("n0");
                 }
 
-                if (propertySetter) {
-                    propertySetterText.text = propertySetter.currentPreset == 0 ? "Normal Steering" : (propertySetter.currentPreset == 1 ? "Skid Steering" : "Crab Steering");
-                }
+                propertySetterText.text = "Steering angle: " + vp.steerInput.ToString("0.000");
+                diagText.text = "Diag: " + vp.accelInput;
             }
         }
     }

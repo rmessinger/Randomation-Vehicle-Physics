@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Environmental Race Track Pack/Scenes/F1TrackDisplayScene.unity
+    guid: 113f72dcb05e28844a3ed8043e7a81af
+  m_configObjects: {}
